@@ -1,0 +1,1033 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<link href="//files.realpython.com" rel="dns-prefetch">
+<link href="//fonts.googleapis.com" rel="dns-prefetch">
+<link href="//fonts.gstatic.com" rel="dns-prefetch">
+<title>Python Metaclasses – Real Python</title>
+<meta name="author" content="Real Python">
+<meta name="description" content="How Python&#39;s metaclasses work as an OOP concept, what they are good for—and why you might want to avoid them in your own programs.">
+<meta name="keywords" content="python, metaclasses, metaprogramming, meta-class, oop, classes">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="canonical" href="https://realpython.com/python-metaclasses/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://files.realpython.com/media/python-metaclasses-title.d4c650dff96f.jpg">
+<meta property="og:image" content="https://files.realpython.com/media/python-metaclasses-title.d4c650dff96f.jpg">
+<meta name="twitter:creator" content="@realpython">
+<meta name="twitter:site" content="@realpython">
+<meta property="og:title" content="Python Metaclasses – Real Python">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://realpython.com/python-metaclasses/">
+<meta property="og:description" content="How Python&#39;s metaclasses work as an OOP concept, what they are good for—and why you might want to avoid them in your own programs.">
+<link href="/static/favicon.68cbf4197b0c.png" rel="icon">
+<link href="https://realpython.com/atom.xml" rel="alternate" title="Real Python" type="application/atom+xml">
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="/static/realpython.min.96eafafb792e.css">
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-35184939-1', 'auto', {'allowLinker': true});
+  ga('require', 'linker');
+  ga('linker:autoLink', ['fastspring.com', 'realpython.onfastspring.com', 'onfastspring.com']);
+  ga('send', 'pageview');
+  
+  ga('require', 'ecommerce');
+  
+</script>
+</head>
+<body>
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark flex-column">
+<div class="container flex-row">
+<a class="navbar-brand" href="/">
+<img src="/static/real-python-logo.ab1a167d9717.svg" height="40" class="d-inline-block align-top" alt="Real Python">
+</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+<ul class="navbar-nav mr-2 flex-fill">
+<li class="nav-item">
+<a class="nav-link" href="/start-here/">Start&nbsp;Here</a>
+</li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLibrary" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+<span class="fa fa-graduation-cap"></span> Learn Python
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownLibrary">
+<a class="dropdown-item" href="/">Python Tutorials</a>
+<a class="dropdown-item" href="/courses/">Video Courses</a>
+<a class="dropdown-item" href="/quizzes/">Interactive Quizzes</a>
+<a class="dropdown-item" href="/learning-paths/">Learning Paths</a>
+ <a class="dropdown-item" href="/tutorials/all/">Browse Topics</a>
+<a class="dropdown-item border-top" href="/account/join/"><i class="fa fa-fw fa-star text-warning"></i> Unlock All Content</a>
+</div>
+</li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownBooksCourses" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+Store
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownBooksCourses">
+<a class="dropdown-item" href="/account/join/"><i class="fa fa-fw fa-star text-warning"></i> RP Membership</a>
+<a class="dropdown-item" href="/products/python-basics-book/">Python Basics Book</a>
+<a class="dropdown-item" href="/products/python-tricks-book/">Python Tricks Book</a>
+<a class="dropdown-item" href="/products/real-python-course/">The Real Python Course</a>
+<a class="dropdown-item" href="/products/managing-python-dependencies/">Managing Python Dependencies</a>
+<a class="dropdown-item" href="/products/sublime-python/">Sublime Text + Python Setup</a>
+<a class="dropdown-item" href="/products/pythonic-wallpapers/">Pythonic Wallpapers Pack</a>
+<a class="dropdown-item" href="https://nerdlettering.com" target="_blank">Python Mugs, T-Shirts, and More</a>
+<a class="dropdown-item" href="https://www.pythonistacafe.com" target="_blank">Pythonista Cafe Community</a>
+<a class="dropdown-item border-top" href="/products/">Browse All »</a>
+</div>
+</li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMore" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+More
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdownMore">
+<a class="dropdown-item" href="/newsletter/">Python Newsletter</a>
+<a class="dropdown-item" href="https://www.pythonjobshq.com" target="_blank">Python Job Board</a>
+<a class="dropdown-item" href="/team/">The RP Team</a>
+<a class="dropdown-item" href="/write-for-us/">Become a Tutorial Author</a>
+<a class="dropdown-item" href="/become-an-instructor/">Become a Video Instructor</a>
+</div>
+</li>
+</ul>
+<form class="form-inline my-2 my-lg-0 mr-2 flex-fill" action="/search" method="GET">
+<input class="search-field form-control form-control-md mr-sm-1 mr-lg-2 w-100" type="search" placeholder="Search&hellip;" aria-label="Search" name="q">
+</form>
+<ul class="navbar-nav">
+<li class="nav-item form-inline">
+<a class="btn btn-sm btn-primary px-3" href="/account/join/">Join</a>
+</li>
+<li class="nav-item">
+<a class="btn text-light" href="/account/login/">Sign&nbsp;In</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="flex-row w-100" style="border-top: 1px dashed #ffc107 !important;">
+<div class="container text-center">
+<a class="link-unstyled" href="/blackfriday-header"><p class="my-1 small"><span class="text-warning"><span class="fa fa-star mr-2"></span><strong>Black Friday Sale:</strong> Master Python &amp; Support the PSF »</span></p></a>
+</div>
+</div>
+</nav>
+<div class="container main-content">
+<div class="row justify-content-center">
+<div class="col-md-11 col-lg-8 article">
+<figure class="embed-responsive embed-responsive-16by9">
+<img class="card-img-top m-0 p-0 embed-responsive-item rounded" style="object-fit: contain;" alt="Python Metaclasses and Metaprogramming" src="https://files.realpython.com/media/python-metaclasses-title.d4c650dff96f.jpg" width="1920" height="1080" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/python-metaclasses-title.d4c650dff96f.jpg&amp;w=480&amp;sig=615af860daf1f7f7e8e761bca807b68fa077432b 480w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/python-metaclasses-title.d4c650dff96f.jpg&amp;w=960&amp;sig=a4ef36d229f8da1b6885b454f7d74bfef73b1c57 960w, https://files.realpython.com/media/python-metaclasses-title.d4c650dff96f.jpg 1920w" sizes="75vw">
+</figure>
+<h1>Python Metaclasses</h1>
+<p>
+<span class="text-muted">by <a class="text-muted" href="#author">John Sturtz</a>
+<span class="ml-2 mr-1 fa fa-comments"></span><a class="text-muted" href="#reader-comments"><span class="disqus-comment-count" data-disqus-identifier="https://realpython.com/python-metaclasses/"></span></a>
+<span class="ml-2 fa fa-tags"></span>
+<a href="/tutorials/advanced/" class="badge badge-light text-muted">advanced</a>
+<a href="/tutorials/python/" class="badge badge-light text-muted">python</a>
+<br>
+<a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check out this %23Python tutorial: Python%20Metaclasses by @realpython&url=https%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-twitter text-light"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+<a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-facebook text-light"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+<a target="_blank" rel="nofollow" href="mailto:?subject=Python article for you&body=Check out this Python tutorial:%0A%0APython%20Metaclasses%0A%0Ahttps%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-red text-light"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</span></p>
+<div class="article-body">
+<div class="bg-light sidebar-module sidebar-module-inset" id="toc">
+<p class="h3 mb-2 text-muted">Table of Contents</p>
+<div class="toc">
+<ul>
+<li><a href="#old-style-vs-new-style-classes">Old-Style vs. New-Style Classes</a><ul>
+<li><a href="#old-style-classes">Old-Style Classes</a></li>
+<li><a href="#new-style-classes">New-Style Classes</a></li>
+</ul>
+</li>
+<li><a href="#type-and-class">Type and Class</a></li>
+<li><a href="#defining-a-class-dynamically">Defining a Class Dynamically</a><ul>
+<li><a href="#example-1">Example 1</a></li>
+<li><a href="#example-2">Example 2</a></li>
+<li><a href="#example-3">Example 3</a></li>
+<li><a href="#example-4">Example 4</a></li>
+</ul>
+</li>
+<li><a href="#custom-metaclasses">Custom Metaclasses</a></li>
+<li><a href="#is-this-really-necessary">Is This Really Necessary?</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</div>
+</div>
+<div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+<div style="display:block;position:relative;">
+<div style="display:block;width:100%;padding-top:12.5%;"></div>
+<div class="rpad" data-unit="8x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"></div>
+</div>
+</div>
+<p>The term <strong>metaprogramming</strong> refers to the potential for a program to have knowledge of or manipulate itself. Python supports a form of metaprogramming for classes called <strong>metaclasses</strong>.</p>
+<p>Metaclasses are an esoteric <a href="https://realpython.com/python3-object-oriented-programming/">OOP concept</a>, lurking behind virtually all Python code. You are using them whether you are aware of it or not. For the most part, you don&rsquo;t need to be aware of it. Most Python programmers rarely, if ever, have to think about metaclasses.</p>
+<p>When the need arises, however, Python provides a capability that not all object-oriented languages support: you can get under the hood and define custom metaclasses. The use of custom metaclasses is somewhat controversial, as suggested by the following quote from Tim Peters, the Python guru who authored the <a href="https://www.python.org/dev/peps/pep-0020">Zen of Python</a>:</p>
+<blockquote>
+<p>&ldquo;Metaclasses are deeper magic than 99% of users should ever worry about. If you wonder whether you need them, you don&rsquo;t (the people who actually need them know with certainty that they need them, and don&rsquo;t need an explanation about why).&rdquo;</p>
+<p>&mdash; <em>Tim Peters</em></p>
+</blockquote>
+<p>There are Pythonistas (as Python aficionados are known) who believe that you should never use custom metaclasses. That might be going a bit far, but it is probably true that custom metaclasses mostly aren&rsquo;t necessary. If it isn&rsquo;t pretty obvious that a problem calls for them, then it will probably be cleaner and more readable if solved in a simpler way.</p>
+<p>Still, understanding Python metaclasses is worthwhile, because it leads to a better understanding of the internals of Python classes in general. You never know: you may one day find yourself in one of those situations where you just know that a custom metaclass is what you want.</p>
+<div class="alert alert-warning" role="alert"><p><strong>Don't miss the follow up tutorial:</strong> <a href="https://realpython.com/bonus/newsletter-dont-miss-updates-experiment/" class="alert-link" data-toggle="modal" data-target="#modal-newsletter-dont-miss-updates-experiment" data-focus="false">Click here to join the Real Python Newsletter</a> and you'll know when the next installment comes out.</p></div>
+<div class="w-100 text-center js-needs-scaling" style="transform-origin: 0 0;"><div id="waldo-tag-4996"></div> <a class="small text-muted js-disclosure" href="/account/join/" rel="nofollow" style="display: none;"> <i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div><h2 id="old-style-vs-new-style-classes">Old-Style vs. New-Style Classes</h2>
+<p>In the Python realm, a class <a href="https://wiki.python.org/moin/NewClassVsClassicClass">can be one of two varieties</a>. No official terminology has been decided on, so they are informally referred to as old-style and new-style classes.</p>
+<h3 id="old-style-classes">Old-Style Classes</h3>
+<p>With old-style classes, class and type are not quite the same thing. An instance of an old-style class is always implemented from a single built-in type called <code>instance</code>. If <code>obj</code> is an instance of an old-style class, <code>obj.__class__</code> designates the class, but <code>type(obj)</code> is always <code>instance</code>. The following example is taken from Python 2.7:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="vm">__class__</span>
+<span class="go">&lt;class __main__.Foo at 0x000000000535CC48&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="go">&lt;type &#39;instance&#39;&gt;</span>
+</pre></div>
+<h3 id="new-style-classes">New-Style Classes</h3>
+<p>New-style classes unify the concepts of class and type. If <code>obj</code> is an instance of a new-style class, <code>type(obj)</code> is the same as <code>obj.__class__</code>:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span>
+<span class="go">&lt;class &#39;__main__.Foo&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+<span class="go">&lt;class &#39;__main__.Foo&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;x&#39;</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span> <span class="p">:</span> <span class="mi">2</span> <span class="p">}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">is</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">True</span>
+<span class="go">True</span>
+<span class="go">True</span>
+</pre></div>
+<h2 id="type-and-class">Type and Class</h2>
+<p>In Python 3, all classes are new-style classes. Thus, in Python 3 it is reasonable to refer to an object&rsquo;s type and its class interchangeably.</p>
+<div class="alert alert-primary" role="alert">
+<p><strong>Note:</strong> In Python 2, classes are old-style by default. Prior to Python 2.2, new-style classes weren&rsquo;t supported at all. From Python 2.2 onward, they can be created but must be explicitly declared as new-style.</p>
+</div>
+<p>Remember that, <a href="https://mail.python.org/pipermail/python-list/2015-June/691689.html">in Python, everything is an object.</a> Classes are objects as well. As a result, a class must have a type. What is the type of a class?</p>
+<p>Consider the following:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="go">&lt;class &#39;__main__.Foo&#39;&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">Foo</span><span class="p">)</span>
+<span class="go">&lt;class &#39;type&#39;&gt;</span>
+</pre></div>
+<p>The type of <code>x</code> is class <code>Foo</code>, as you would expect. But the type of <code>Foo</code>, the class itself, is <code>type</code>. In general, the type of any new-style class is <code>type</code>.</p>
+<p>The type of the built-in classes you are familiar with is also <code>type</code>:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+<span class="gp">...</span>
+<span class="go">&lt;class &#39;type&#39;&gt;</span>
+<span class="go">&lt;class &#39;type&#39;&gt;</span>
+<span class="go">&lt;class &#39;type&#39;&gt;</span>
+<span class="go">&lt;class &#39;type&#39;&gt;</span>
+<span class="go">&lt;class &#39;type&#39;&gt;</span>
+</pre></div>
+<p>For that matter, the type of <code>type</code> is <code>type</code> as well (yes, really):</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
+<span class="go">&lt;class &#39;type&#39;&gt;</span>
+</pre></div>
+<p><code>type</code> is a metaclass, of which classes are instances. Just as an ordinary object is an instance of a class, any new-style class in Python, and thus any class in Python 3, is an instance of the <code>type</code> metaclass.</p>
+<p>In the above case:</p>
+<ul>
+<li><code>x</code> is an instance of class <code>Foo</code>.</li>
+<li><code>Foo</code> is an instance of the <code>type</code> metaclass.</li>
+<li><code>type</code> is also an instance of the <code>type</code> metaclass, so it is an instance of itself.</li>
+</ul>
+<p><a href="https://files.realpython.com/media/class-chain.5cb031a299fe.png" target="_blank"><img class="img-fluid mx-auto d-block " src="https://files.realpython.com/media/class-chain.5cb031a299fe.png" width="155" height="304" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/class-chain.5cb031a299fe.png&amp;w=38&amp;sig=0a75442635a02fbc9b909b188f692a0cdfb82200 38w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/class-chain.5cb031a299fe.png&amp;w=77&amp;sig=59d76c6f38206139826400836142166851b4344a 77w, https://files.realpython.com/media/class-chain.5cb031a299fe.png 155w" sizes="75vw" alt="Python class chain" /></a></p>
+<div class="w-100 text-center js-needs-scaling" style="transform-origin: 0 0;"><div id="waldo-tag-4998"></div> <a class="small text-muted js-disclosure" href="/account/join/" rel="nofollow" style="display: none;"> <i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div><h2 id="defining-a-class-dynamically">Defining a Class Dynamically</h2>
+<p>The built-in <code>type()</code> function, when passed one argument, returns the type of an object. For new-style classes, that is generally the same as the <a href="https://docs.python.org/3/library/stdtypes.html#instance.__class__">object&rsquo;s <code>__class__</code> attribute</a>:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">&lt;class &#39;int&#39;&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">([</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">])</span>
+<span class="go">&lt;class &#39;list&#39;&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+<span class="go">&lt;class &#39;tuple&#39;&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">Foo</span><span class="p">())</span>
+<span class="go">&lt;class &#39;__main__.Foo&#39;&gt;</span>
+</pre></div>
+<p>You can also call <code>type()</code> with three arguments&mdash;<code>type(&lt;name&gt;, &lt;bases&gt;, &lt;dct&gt;)</code>:</p>
+<ul>
+<li><code>&lt;name&gt;</code> specifies the class name. This becomes the <code>__name__</code> attribute of the class.</li>
+<li><code>&lt;bases&gt;</code> specifies a tuple of the base classes from which the class inherits. This becomes the <code>__bases__</code> attribute of the class.</li>
+<li><code>&lt;dct&gt;</code> specifies a namespace dictionary containing definitions for the class body. This becomes the <code>__dict__</code> attribute of the class.</li>
+</ul>
+<p>Calling <code>type()</code> in this manner creates a new instance of the <code>type</code> metaclass. In other words, it dynamically creates a new class.</p>
+<p>In each of the following examples, the top snippet defines a class dynamically with <code>type()</code>, while the snippet below it defines the class the usual way, with the <code>class</code> statement. In each case, the two snippets are functionally equivalent.</p>
+<h3 id="example-1">Example 1</h3>
+<p>In this first example, the <code>&lt;bases&gt;</code> and <code>&lt;dct&gt;</code> arguments passed to <code>type()</code> are both empty. No inheritance from any parent class is specified, and nothing is initially placed in the namespace dictionary. This is the simplest class definition possible:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s1">&#39;Foo&#39;</span><span class="p">,</span> <span class="p">(),</span> <span class="p">{})</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">&lt;__main__.Foo object at 0x04CFAD50&gt;</span>
+</pre></div>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">&lt;__main__.Foo object at 0x0370AD50&gt;</span>
+</pre></div>
+<h3 id="example-2">Example 2</h3>
+<p>Here, <code>&lt;bases&gt;</code> is a tuple with a single element <code>Foo</code>, specifying the parent class that <code>Bar</code> inherits from. An attribute, <code>attr</code>, is initially placed into the namespace dictionary:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Bar</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="s1">&#39;Bar&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">Foo</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">attr</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Bar</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="vm">__class__</span>
+<span class="go">&lt;class &#39;__main__.Bar&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__bases__</span>
+<span class="go">(&lt;class &#39;__main__.Foo&#39;&gt;,)</span>
+</pre></div>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Foo</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Bar</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="vm">__class__</span>
+<span class="go">&lt;class &#39;__main__.Bar&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__bases__</span>
+<span class="go">(&lt;class &#39;__main__.Foo&#39;&gt;,)</span>
+</pre></div>
+<h3 id="example-3">Example 3</h3>
+<p>This time, <code>&lt;bases&gt;</code> is again empty. Two objects are placed into the namespace dictionary via the <code>&lt;dct&gt;</code> argument. The first is an attribute named <code>attr</code> and the second a function named <code>attr_val</code>, which becomes a method of the defined class:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;Foo&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">(),</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">&#39;attr&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;attr_val&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">attr</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr_val</span><span class="p">()</span>
+<span class="go">100</span>
+</pre></div>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">attr_val</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr_val</span><span class="p">()</span>
+<span class="go">100</span>
+</pre></div>
+<h3 id="example-4">Example 4</h3>
+<p>Only very simple functions can be defined with <a href="https://dbader.org/blog/python-lambda-functions"><code>lambda</code> in Python</a>. In the following example, a slightly more complex function is defined externally then assigned to <code>attr_val</code> in the namespace dictionary via the name <code>f</code>:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;attr =&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">attr</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;Foo&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">(),</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">&#39;attr&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;attr_val&#39;</span><span class="p">:</span> <span class="n">f</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr_val</span><span class="p">()</span>
+<span class="go">attr = 100</span>
+</pre></div>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;attr =&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">attr</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">... </span>    <span class="n">attr_val</span> <span class="o">=</span> <span class="n">f</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr_val</span><span class="p">()</span>
+<span class="go">attr = 100</span>
+</pre></div>
+<div class="w-100 text-center js-needs-scaling" style="transform-origin: 0 0;"><div id="waldo-tag-5000"></div> <a class="small text-muted js-disclosure" href="/account/join/" rel="nofollow" style="display: none;"> <i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div><h2 id="custom-metaclasses">Custom Metaclasses</h2>
+<p>Consider again this well-worn example:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+</pre></div>
+<p>The expression <code>Foo()</code> creates a new instance of class <code>Foo</code>. When the interpreter encounters <code>Foo()</code>, the following occurs:</p>
+<ul>
+<li>
+<p>The <code>__call__()</code> method of <code>Foo</code>&rsquo;s parent class is called. Since <code>Foo</code> is a standard new-style class, its parent class is the <code>type</code> metaclass, so <code>type</code>&rsquo;s <code>__call__()</code> method is invoked.</p>
+</li>
+<li>
+<p>That <code>__call__()</code> method in turn invokes the following:</p>
+<ul>
+<li><code>__new__()</code></li>
+<li><code>__init__()</code></li>
+</ul>
+</li>
+</ul>
+<p>If <code>Foo</code> does not define <code>__new__()</code> and <code>__init__()</code>, default methods are inherited from <code>Foo</code>&rsquo;s ancestry. But if <code>Foo</code> does define these methods, they override those from the ancestry, which allows for customized behavior when instantiating <code>Foo</code>.</p>
+<p>In the following, a custom method called <code>new()</code> is defined and assigned as the <code>__new__()</code> method for <code>Foo</code>:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">x</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">x</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span><span class="o">.</span><span class="fm">__new__</span> <span class="o">=</span> <span class="n">new</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+</pre></div>
+<p>This modifies the instantiation behavior of class <code>Foo</code>: each time an instance of <code>Foo</code> is created, by default it is initialized with an attribute called <code>attr</code>, which has a value of <code>100</code>. (Code like this would more usually appear in the <code>__init__()</code> method and not typically in <code>__new__()</code>. This example is contrived for demonstration purposes.)</p>
+<p>Now, as has already been reiterated, classes are objects too. Suppose you wanted to similarly customize instantiation behavior when creating a class like <code>Foo</code>. If you were to follow the pattern above, you&rsquo;d again define a custom method and assign it as the <code>__new__()</code> method for the class of which <code>Foo</code> is an instance. <code>Foo</code> is an instance of the <code>type</code> metaclass, so the code looks something like this:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="go"># Spoiler alert:  This doesn&#39;t work!</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">x</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">x</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">x</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="o">.</span><span class="fm">__new__</span> <span class="o">=</span> <span class="n">new</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;pyshell#77&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+    <span class="nb">type</span><span class="o">.</span><span class="fm">__new__</span> <span class="o">=</span> <span class="n">new</span>
+<span class="gr">TypeError</span>: <span class="n">can&#39;t set attributes of built-in/extension type &#39;type&#39;</span>
+</pre></div>
+<p>Except, as you can see, you can&rsquo;t reassign the <code>__new__()</code> method of the <code>type</code> metaclass. Python doesn&rsquo;t allow it.</p>
+<p>This is probably just as well. <code>type</code> is the metaclass from which all new-style classes are derived. You really shouldn&rsquo;t be mucking around with it anyway. But then what recourse is there, if you want to customize instantiation of a class?</p>
+<p>One possible solution is a custom metaclass. Essentially, instead of mucking around with the <code>type</code> metaclass, you can define your own metaclass, which derives from <code>type</code>, and then you can muck around with that instead.</p>
+<p>The first step is to define a metaclass that derives from <code>type</code>, as follows:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Meta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">x</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="n">x</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="n">x</span>
+<span class="gp">...</span>
+</pre></div>
+<p>The definition header <code>class Meta(type):</code> specifies that <code>Meta</code> derives from <code>type</code>. Since <code>type</code> is a metaclass, that makes <code>Meta</code> a metaclass as well.</p>
+<p>Note that a custom <code>__new__()</code> method has been defined for <code>Meta</code>. It wasn&rsquo;t possible to do that to the <code>type</code> metaclass directly. The <code>__new__()</code> method does the following:</p>
+<ul>
+<li>Delegates via <code>super()</code> to the <code>__new__()</code> method of the parent metaclass (<code>type</code>) to actually create a new class</li>
+<li>Assigns the custom attribute <code>attr</code> to the class, with a value of <code>100</code></li>
+<li>Returns the newly created class</li>
+</ul>
+<p>Now the other half of the voodoo: Define a new class <code>Foo</code> and specify that its metaclass is the custom metaclass <code>Meta</code>, rather than the standard metaclass <code>type</code>. This is done using the <code>metaclass</code> keyword in the class definition as follows:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Meta</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+</pre></div>
+<p><em>Voila!</em> <code>Foo</code> has picked up the <code>attr</code> attribute automatically from the <code>Meta</code> metaclass. Of course, any other classes you define similarly will do likewise:</p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Meta</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Qux</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Meta</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Bar</span><span class="o">.</span><span class="n">attr</span><span class="p">,</span> <span class="n">Qux</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">(100, 100)</span>
+</pre></div>
+<p>In the same way that a class functions as a template for the creation of objects, a metaclass functions as a template for the creation of classes. Metaclasses are sometimes referred to as <a href="https://en.wikipedia.org/wiki/Factory_(object-oriented_programming)">class factories</a>.</p>
+<p>Compare the following two examples:</p>
+<p><strong>Object Factory:</strong></p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="n">Foo</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+</pre></div>
+<p><strong>Class Factory:</strong></p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Meta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span>
+<span class="gp">... </span>    <span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">cls</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">X</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Meta</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Y</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Meta</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Z</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Meta</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+</pre></div>
+<div class="w-100 text-center js-needs-scaling" style="transform-origin: 0 0;"><div id="waldo-tag-5002"></div> <a class="small text-muted js-disclosure" href="/account/join/" rel="nofollow" style="display: none;"> <i aria-hidden="true" class="fa fa-info-circle"> </i> Remove ads</a></div><h2 id="is-this-really-necessary">Is This Really Necessary?</h2>
+<p>As simple as the above class factory example is, it is the essence of how metaclasses work. They allow customization of class instantiation.</p>
+<p>Still, this is a lot of fuss just to bestow the custom attribute <code>attr</code> on each newly created class. Do you really need a metaclass just for that?</p>
+<p>In Python, there are at least a couple other ways in which effectively the same thing can be accomplished:</p>
+<p><strong>Simple Inheritance:</strong></p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Base</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">X</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Y</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Z</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+</pre></div>
+<p><strong>Class Decorator:</strong></p>
+<div class="highlight python repl"><span class="repl-toggle" title="Toggle REPL prompts and output">&gt;&gt;&gt;</span><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">class</span> <span class="nc">NewClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="n">attr</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">NewClass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@decorator</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">X</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@decorator</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">Y</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@decorator</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">Z</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span><span class="o">.</span><span class="n">attr</span>
+<span class="go">100</span>
+</pre></div>
+<h2 id="conclusion">Conclusion</h2>
+<p>As Tim Peters suggests, <strong>metaclasses</strong> can easily veer into the realm of being a &ldquo;solution in search of a problem.&rdquo; It isn&rsquo;t typically necessary to create custom metaclasses. If the problem at hand can be solved in a simpler way, it probably should be. Still, it is beneficial to understand metaclasses so that you understand <a href="https://realpython.com/python3-object-oriented-programming/">Python classes</a> in general and can recognize when a metaclass really is the appropriate tool to use.</p>
+</div>
+<div class="card mt-4 mb-4 bg-secondary">
+<p class="card-header h3 text-center bg-light">🐍 Python Tricks 💌</p>
+<div class="card-body">
+<div class="container">
+<div class="row">
+<div class="col-xs-12 col-sm-7">
+<p>Get a short &amp; sweet <strong>Python Trick</strong> delivered to your inbox every couple of days. No spam ever. Unsubscribe any time. Curated by the Real Python team.</p>
+</div>
+<div class="col-xs-12 col-sm-5">
+<img class="img-fluid rounded mb-3" src="/static/pytrick-dict-merge.4201a0125a5e.png" width="738" height="490" alt="Python Tricks Dictionary Merge">
+</div>
+</div>
+<div class="row mb-3">
+<form class="col-12" action="/optins/process/" method="post">
+<input type="hidden" name="csrfmiddlewaretoken" value="HnlIX051UzDhj1uSTQNsLi5JQgDZci25ceerWOt2PN2KW3v6E4JSk9jPyyHzbD9N">
+<input type="hidden" name="slug" value="static-python-tricks-footer">
+<div class="form-group">
+<input name="email" type="email" class="form-control form-control-lg" placeholder="Email Address" required>
+</div>
+<button name="submit" type="submit" class="btn btn-primary btn-lg btn-block">Send Me Python Tricks »</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+<div class="card mt-4" id="author">
+<p class="card-header h3">About <strong>John Sturtz</strong></p>
+<div class="card-body">
+<div class="container">
+<div class="row">
+<div class="col-12 col-md-3 align-self-center">
+<a href="/team/jsturtz/"><img src="https://files.realpython.com/media/img007.18d0e80683f7.jpg" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/img007.18d0e80683f7.jpg&amp;w=89&amp;sig=d6ed4490cd31e4c90fc3debe0b7c98e4326a9e47 89w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/img007.18d0e80683f7.jpg&amp;w=179&amp;sig=e0aa11d8a4f585bb04981bd2a57008688e1c0259 179w, https://files.realpython.com/media/img007.18d0e80683f7.jpg 358w" class="rounded-circle img-fluid w-100 mb-0" alt="John Sturtz" sizes="25vw"></a>
+</div>
+<div class="col mt-3">
+<p>John is an avid Pythonista and a member of the Real Python tutorial team.</p>
+<a href="/team/jsturtz/" class="card-link">» More about John</a>
+</div>
+</div>
+</div>
+</div>
+<hr class="my-0">
+<div class="card-body pb-0">
+<div class="container">
+<div class="row">
+<p><em>Each tutorial at Real Python is created by a team of developers so that it meets our high quality standards. The team members who worked on this tutorial are:</em></p>
+</div>
+<div class="row align-items-center w-100 mx-auto">
+<div class="col-4 col-sm-2 align-self-center">
+<a href="/team/dbader/"><img src="https://files.realpython.com/media/daniel-square.d58bf4388750.jpg" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&amp;w=250&amp;sig=0f6c5ef7f5786b2a198fe2d700695467601836fe 250w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/daniel-square.d58bf4388750.jpg&amp;w=500&amp;sig=6d44e31ac8b0ed5d7bf09163b66e9374d79b7256 500w, https://files.realpython.com/media/daniel-square.d58bf4388750.jpg 1000w" sizes="10vw" class="rounded-circle img-fluid w-100" alt="Dan Bader"></a>
+</div>
+<div class="col pl-0 d-none d-sm-block">
+<a href="/team/dbader/" class="card-link"><p>Dan</p></a>
+</div>
+<div class="col-4 col-sm-2 align-self-center">
+<a href="/team/jjablonski/"><img src="https://files.realpython.com/media/jjablonksi-avatar.e37c4f83308e.jpg" srcset="https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/jjablonksi-avatar.e37c4f83308e.jpg&amp;w=200&amp;sig=d779dbceba743afb659648000525a6a71656ae98 200w, https://robocrop.realpython.net/?url=https%3A//files.realpython.com/media/jjablonksi-avatar.e37c4f83308e.jpg&amp;w=400&amp;sig=99ce401a9a219f6b406309e90925252be1900dfc 400w, https://files.realpython.com/media/jjablonksi-avatar.e37c4f83308e.jpg 800w" sizes="10vw" class="rounded-circle img-fluid w-100" alt="Joanna Jablonski"></a>
+</div>
+<div class="col pl-0 d-none d-sm-block">
+<a href="/team/jjablonski/" class="card-link"><p>Joanna</p></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sidebar-module sidebar-module-inset p-0 my-4" style="overflow:hidden;">
+<div style="display:block;position:relative;">
+<div style="display:block;width:100%;padding-top:25%;"></div>
+<div class="rpad" data-unit="4x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"></div>
+</div>
+</div>
+<div class="card mt-4" id="reader-comments">
+<p class="card-header h3">What Do You Think?</p>
+<div class="text-center mt-3 mb-0 p-0">
+<a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check out this %23Python tutorial: Python%20Metaclasses by @realpython&url=https%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-twitter text-light"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+<a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-facebook text-light"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+<a target="_blank" rel="nofollow" href="mailto:?subject=Python article for you&body=Check out this Python tutorial:%0A%0APython%20Metaclasses%0A%0Ahttps%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-red text-light"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</div>
+<div class="card-body">
+<div class="alert alert-dark">
+<p class="mb-0"><strong>Real Python Comment Policy:</strong> The most useful comments are those written with the goal of learning from or helping out other readers—after reading the whole article and all the earlier comments. Complaints and insults generally won’t make the cut here.</p>
+</div>
+<p>What’s your #1 takeaway or favorite thing you learned? How are you going to put your newfound skills to use? Leave a comment below and let us know.</p>
+<div class="mb-4" id="disqus_thread"></div>
+</div>
+</div>
+<div class="card mt-4 mb-4">
+<p class="card-header h3">Keep Learning</p>
+<div class="card-body">
+<p class="mb-0">Related Tutorial Categories:
+<a href="/tutorials/advanced/" class="badge badge-light text-muted">advanced</a>
+<a href="/tutorials/python/" class="badge badge-light text-muted">python</a>
+</p>
+</div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="rpvc">
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+<div class="modal-content">
+<div class="modal-header border-0 mt-3">
+<div class="col-12 modal-title text-center">
+<h2 class="my-0 mx-5">Master <u>Real-World Python Skills</u> With Unlimited Access to Real Python</h2>
+<p class="text-center text-muted mt-2 mb-1">Already a member? <a href="/account/login/">Log In</a></p>
+</div>
+</div>
+<div class="modal-body bg-light">
+<div class="col-12 text-center">
+<p class="mb-2 mt-3"><a href="/account/join/?utm_source=rp&utm_medium=web&utm_campaign=pwn&utm_content=v1"><img class="w-50 mb-2" src="/static/videos/lesson-locked.f5105cfd26db.svg"></a></p>
+<p class="mx-auto w-66 mb-3"><strong>Join us and get access to hundreds of tutorials, hands-on video courses, and a community of expert Pythonistas:</strong></p>
+<p><a href="/account/join/?utm_source=rp&utm_medium=web&utm_campaign=pwn&utm_content=v1" class="btn btn-primary btn-lg px-4">See Membership Options »</a>
+</div>
+</div>
+<div class="modal-footer border-0">
+<a href="#!" class="text-muted btn" data-dismiss="modal">Close</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<aside class="col-md-7 col-lg-4">
+<div class="card mb-3 bg-secondary">
+<form class="card-body" action="/optins/process/" method="post">
+<div class="form-group">
+<p class="h5 text-muted text-center">— FREE Email Series —</p>
+<p class="h3 text-center">🐍 Python Tricks 💌</p>
+<p><img class="img-fluid rounded" src="/static/pytrick-dict-merge.4201a0125a5e.png" width="738" height="490" alt="Python Tricks Dictionary Merge"></p>
+</div>
+<div class="form-group">
+<input type="hidden" name="csrfmiddlewaretoken" value="HnlIX051UzDhj1uSTQNsLi5JQgDZci25ceerWOt2PN2KW3v6E4JSk9jPyyHzbD9N">
+<input type="hidden" name="slug" value="static-python-tricks-sidebar">
+<input type="email" class="form-control form-control-md" name="email" placeholder="Email&hellip;" required>
+</div>
+<button type="submit" name="submit" class="btn btn-primary btn-md btn-block">Get Python Tricks »</button>
+<p class="mb-0 mt-2 text-muted text-center">🔒 No spam. Unsubscribe any time.</p>
+</form>
+</div>
+<div class="sidebar-module sidebar-module-inset border">
+<p class="h4"><a class="link-unstyled" href="/tutorials/all/">All Tutorial Topics</a></p>
+<a href="/tutorials/advanced/" class="badge badge-light text-muted">advanced</a>
+<a href="/tutorials/api/" class="badge badge-light text-muted">api</a>
+<a href="/tutorials/basics/" class="badge badge-light text-muted">basics</a>
+<a href="/tutorials/best-practices/" class="badge badge-light text-muted">best-practices</a>
+<a href="/tutorials/community/" class="badge badge-light text-muted">community</a>
+<a href="/tutorials/databases/" class="badge badge-light text-muted">databases</a>
+<a href="/tutorials/data-science/" class="badge badge-light text-muted">data-science</a>
+<a href="/tutorials/devops/" class="badge badge-light text-muted">devops</a>
+<a href="/tutorials/django/" class="badge badge-light text-muted">django</a>
+<a href="/tutorials/docker/" class="badge badge-light text-muted">docker</a>
+<a href="/tutorials/flask/" class="badge badge-light text-muted">flask</a>
+<a href="/tutorials/front-end/" class="badge badge-light text-muted">front-end</a>
+<a href="/tutorials/intermediate/" class="badge badge-light text-muted">intermediate</a>
+<a href="/tutorials/machine-learning/" class="badge badge-light text-muted">machine-learning</a>
+<a href="/tutorials/python/" class="badge badge-light text-muted">python</a>
+<a href="/tutorials/testing/" class="badge badge-light text-muted">testing</a>
+<a href="/tutorials/tools/" class="badge badge-light text-muted">tools</a>
+<a href="/tutorials/web-dev/" class="badge badge-light text-muted">web-dev</a>
+<a href="/tutorials/web-scraping/" class="badge badge-light text-muted">web-scraping</a>
+</div>
+<div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+<div style="display:block;position:relative;">
+<div style="display:block;width:100%;padding-top:100%;"></div>
+<div class="rpad" data-unit="1x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"></div>
+</div>
+</div>
+<div class="sidebar-sticky">
+<div class="sidebar-module sidebar-module-inset border">
+<p class="h4"><a class="link-unstyled" href="#toc">Table of Contents</a></p>
+<div class="toc">
+<ul>
+<li><a href="#old-style-vs-new-style-classes">Old-Style vs. New-Style Classes</a><ul>
+<li><a href="#old-style-classes">Old-Style Classes</a></li>
+<li><a href="#new-style-classes">New-Style Classes</a></li>
+</ul>
+</li>
+<li><a href="#type-and-class">Type and Class</a></li>
+<li><a href="#defining-a-class-dynamically">Defining a Class Dynamically</a><ul>
+<li><a href="#example-1">Example 1</a></li>
+<li><a href="#example-2">Example 2</a></li>
+<li><a href="#example-3">Example 3</a></li>
+<li><a href="#example-4">Example 4</a></li>
+</ul>
+</li>
+<li><a href="#custom-metaclasses">Custom Metaclasses</a></li>
+<li><a href="#is-this-really-necessary">Is This Really Necessary?</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+</ul>
+</div>
+</div>
+<div class="sidebar-module sidebar-module-inset text-center my-3 py-0">
+<a target="_blank" rel="nofollow" href="https://twitter.com/intent/tweet/?text=Check out this %23Python tutorial: Python%20Metaclasses by @realpython&url=https%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-twitter text-light"><i class="mr-1 fa fa-twitter text-light"></i>Tweet</a>
+<a target="_blank" rel="nofollow" href="https://facebook.com/sharer/sharer.php?u=https%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-facebook text-light"><i class="mr-1 fa fa-facebook text-light"></i>Share</a>
+<a target="_blank" rel="nofollow" href="mailto:?subject=Python article for you&body=Check out this Python tutorial:%0A%0APython%20Metaclasses%0A%0Ahttps%3A//realpython.com/python-metaclasses/" class="mr-1 badge badge-red text-light"><i class="mr-1 fa fa-envelope text-light"></i>Email</a>
+</div>
+<div class="sidebar-module sidebar-module-inset p-0" style="overflow:hidden;">
+<div style="display:block;position:relative;">
+<div style="display:block;width:100%;padding-top:25%;"></div>
+<div class="rpad" data-unit="4x1" style="position:absolute;left:0;top:0;right:0;bottom:0;overflow:hidden;"></div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<div class="modal fade" id="modal-newsletter-dont-miss-updates-experiment" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+<div class="modal-content">
+<div class="modal-header bg-light pt-3 pb-2">
+<div class="container-fluid">
+<div class="row">
+<div class="col-12">
+<div class="progress" style="height: .5rem;">
+<div class="progress-bar progress-bar-striped progress-bar-animated w-50" role="progressbar"></div>
+</div>
+</div>
+<div class="col-12">
+<p class="text-muted text-center mb-0 mt-2">Almost there! Complete this form and click the button below to gain instant access:</p>
+</div>
+</div>
+</div>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body m-4">
+<div class="container-fluid">
+<div class="row align-items-center">
+<div class="col-12 col-lg-4">
+<img class="img-fluid rounded w-100 mb-4" src="https://files.realpython.com/media/real-python-logo-square.28474fda9228.png">
+</div>
+<div class="col">
+<p class="text-center h3 mb-4">Join the Real Python Community Newsletter (More Than 45,468 Python Developers Have Subscribed)</p>
+<form class="col-12" action="/optins/process/" method="post">
+<input type="hidden" name="csrfmiddlewaretoken" value="HnlIX051UzDhj1uSTQNsLi5JQgDZci25ceerWOt2PN2KW3v6E4JSk9jPyyHzbD9N">
+<input type="hidden" name="slug" value="newsletter-dont-miss-updates-experiment">
+<div class="form-group">
+<input type="email" name="email" class="form-control" placeholder="Email Address" required autofocus>
+</div>
+<button name="submit" type="submit" class="btn btn-primary btn-block text-wrap">Get The Newsletter »</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<footer class="footer">
+<div class="container">
+<p class="text-center text-muted">© 2012–2019 Real Python ⋅ <a href="/newsletter/">Newsletter</a> ⋅ <a href="https://www.youtube.com/realpython">YouTube</a> ⋅ <a href="https://twitter.com/realpython">Twitter</a> ⋅ <a href="https://facebook.com/LearnRealPython">Facebook</a> ⋅ <a href="https://www.instagram.com/realpython/">Instagram</a><br><a href="/">Python Tutorials</a> ⋅ <a href="/search">Search</a> ⋅ <a href="/privacy-policy/">Privacy Policy</a> ⋅ <a href="/energy-policy/" class="text-success active">Energy Policy</a> ⋅ <a href="/sponsorships/">Advertise</a> ⋅ <a href="/contact/">Contact</a><br>❤️ Happy Pythoning!</p>
+</div>
+</footer>
+<script>
+      (function(document, history, location) {
+        var HISTORY_SUPPORT = !!(history && history.pushState);
+
+        var anchorScrolls = {
+          ANCHOR_REGEX: /^#[^ ]+$/,
+          OFFSET_HEIGHT_PX: 120,
+
+          /**
+           * Establish events, and fix initial scroll position if a hash is provided.
+           */
+          init: function() {
+            this.scrollToCurrent();
+            window.addEventListener('hashchange', this.scrollToCurrent.bind(this));
+            document.body.addEventListener('click', this.delegateAnchors.bind(this));
+          },
+
+          /**
+           * Return the offset amount to deduct from the normal scroll position.
+           * Modify as appropriate to allow for dynamic calculations
+           */
+          getFixedOffset: function() {
+            return this.OFFSET_HEIGHT_PX;
+          },
+
+          /**
+           * If the provided href is an anchor which resolves to an element on the
+           * page, scroll to it.
+           * @param  {String} href
+           * @return {Boolean} - Was the href an anchor.
+           */
+          scrollIfAnchor: function(href, pushToHistory) {
+            var match, rect, anchorOffset;
+
+            if(!this.ANCHOR_REGEX.test(href)) {
+              return false;
+            }
+
+            match = document.getElementById(href.slice(1));
+
+            if(match) {
+              rect = match.getBoundingClientRect();
+              anchorOffset = window.pageYOffset + rect.top - this.getFixedOffset();
+              window.scrollTo(window.pageXOffset, anchorOffset);
+
+              // Add the state to history as-per normal anchor links
+              if(HISTORY_SUPPORT && pushToHistory) {
+                history.pushState({}, document.title, location.pathname + href);
+              }
+            }
+
+            return !!match;
+          },
+
+          /**
+           * Attempt to scroll to the current location's hash.
+           */
+          scrollToCurrent: function() {
+            this.scrollIfAnchor(window.location.hash);
+          },
+
+          /**
+           * If the click event's target was an anchor, fix the scroll position.
+           */
+          delegateAnchors: function(e) {
+            var elem = e.target;
+
+            if(
+              elem.nodeName === 'A' &&
+              this.scrollIfAnchor(elem.getAttribute('href'), true)
+            ) {
+              e.preventDefault();
+            }
+          }
+        };
+
+        window.addEventListener(
+          'DOMContentLoaded', anchorScrolls.init.bind(anchorScrolls)
+        );
+      })(window.document, window.history, window.location);
+    </script>
+<script src="/static/jquery.min.220afd743d9e.js"></script>
+<script src="/static/popper.min.e21a6649041e.js"></script>
+<script src="/static/bootstrap.min.e1d98d47689e.js"></script>
+<script src="/static/repl-toggle.0c6f07cf3eee.js"></script>
+<script>window.rp_prop_id = '58946116052';</script>
+<script src="https://srv.realpython.net/tag.js" async></script>
+<script src="https://cdn.thisiswaldo.com/static/js/2153.js"></script>
+<script>
+  (function() {
+    function throttle(a, b) { var c, d; return function () { var e = this, f = arguments, g = +new Date; c && g < c + a ? (clearTimeout(d), d = setTimeout(function () { c = g, b.apply(e, f) }, a)) : (c = g, b.apply(e, f)) } }
+    var elems = document.getElementsByClassName("js-needs-scaling");
+    var resizeAll = function() {
+      Array.prototype.forEach.call(elems, function(elem) {
+        var frames = elem.getElementsByTagName("iframe")
+        if (frames.length === 0) {
+          return;
+        }
+        var disclosure = elem.getElementsByClassName("js-disclosure");
+        if (disclosure.length > 0) {
+          disclosure[0].style.display = "";
+        } else {
+          disclosure[0].style.display = "none";
+        }
+        if (frames[0].clientWidth <= elem.parentElement.clientWidth) {
+          elem.style.transform = "";
+          elem.classList.add("text-center");
+          return;
+        }
+        elem.classList.remove("text-center");
+        elem.style.transform = "scale(" + elem.clientWidth / frames[0].width + ")";
+      });
+    }
+    var periodicResize = function() {
+      resizeAll();
+      setTimeout(periodicResize, 100);
+    }
+    setTimeout(periodicResize, 100);
+  })();
+  </script>
+<script id="dsq-count-scr" src="https://realpython.disqus.com/count.js" async></script>
+<script>
+    var disqus_config = function () {
+      this.page.url = 'https://realpython.com/python-metaclasses/';
+      this.page.identifier = 'https://realpython.com/python-metaclasses/';
+      this.callbacks.onReady = [function() {
+        if (window.onDisqusReady) {
+          window.onDisqusReady();
+        }
+      }];
+    };
+    var disqus_script_url = 'https://realpython.disqus.com/embed.js';
+  </script>
+<script src="/static/lazydisqus.3a3e39583b32.js" defer></script>
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+<script>
+    var OneSignal = window.OneSignal || [];
+    OneSignal.push(function() {
+      OneSignal.init({
+        appId: "c0081e20-a523-42bb-b0ac-04c5a9e8bf40"
+      });
+    });
+  </script>
+<script src="/static/articlevc.11f8c3a3f08d.js" defer></script>
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "headline": "Python Metaclasses",
+    
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://files.realpython.com/media/python-metaclasses-title.d4c650dff96f.jpg",
+      "width": 1920,
+      "height": 1080
+    },
+    
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://realpython.com/python-metaclasses/"
+    },
+    "datePublished": "2018-05-01T14:00:00+00:00",
+    "dateModified": "2018-06-10T23:35:40.631896+00:00",
+     "publisher": {
+      "@type": "Organization",
+      "name": "Real Python",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://realpython.com/static/real-python-logo-square-tiny.b2452b6d3823.png",
+        "width": 60,
+        "height": 60
+      }
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "Real Python",
+      "url": "https://realpython.com",
+      "logo": "https://realpython.com/static/real-python-logo-square.28474fda9228.png"
+    },
+    "description": "How Python&#39;s metaclasses work as an OOP concept, what they are good for—and why you might want to avoid them in your own programs."
+  }
+  </script>
+<script>
+  var _dcq = _dcq || [];
+  var _dcs = _dcs || {};
+  _dcs.account = '6214500';
+
+  (function() {
+    var dc = document.createElement('script');
+    dc.type = 'text/javascript'; dc.async = true;
+    dc.src = '//tag.getdrip.com/6214500.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(dc, s);
+  })();
+</script>
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '2220911568135371');
+  fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=2220911568135371&ev=PageView&noscript=1"
+/></noscript>
+</body>
+</html>
